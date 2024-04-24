@@ -12,11 +12,23 @@
       }
       canvas {
         background-color: none;
+        position: absolute;
+        z-index: 0;
+      }
+      .sliders {
+        position: absolute;
+        width: 200px;
+        height: 800px;
+        z-index: 1;
       }
     </style>
   </head>
   <body>
     <canvas></canvas>
+    <div class='sliders'>
+        <h3>Timer speed</h3>
+        <input type='range' min='500' max='10000' value='1' id='time-slider'>
+      </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

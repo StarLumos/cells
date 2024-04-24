@@ -15,9 +15,18 @@ for (let y = 0; y < canvas.height/size; y++) {
         grid[y][x] = 0
 }
 
-var pause = true
+const html = {
+    time: (document.getElementById('time-slider') as HTMLInputElement),
+}
 
-const timer = new Timer(1000)
+const timer = new Timer(parseInt(html.time.value))
+
+html.time.addEventListener('input', () => {
+    timer.duration = parseInt(html.time.value)
+    timer.restart()
+})
+
+var pause = true
 
 let previous = Date.now()
 let current = Date.now()
@@ -26,6 +35,7 @@ function frameloop() {
     const delta = current - previous
     previous = current
     timer.count += delta
+    console.log(timer.count)
 
     if (keyboard.has('Enter'))
         pause = false
