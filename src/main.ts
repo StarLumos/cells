@@ -1,45 +1,10 @@
-const canvas = document.querySelector('canvas') as HTMLCanvasElement
-
-if (canvas == null)
-  throw new Error('Could not find canvas element.')
-
-function resize(canvas: HTMLCanvasElement) {
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight 
-}
+import { Timer } from "./Timer"
+import { keyboard } from "./keyboard"
+import { mouse } from "./mouse"
+import { resize, canvas, context } from "./graphics"
+import { deepcopy } from "./utilities"
 
 resize(canvas)
-window.addEventListener('resize', () => { resize(canvas) }) 
-
-const context = canvas.getContext('2d') as CanvasRenderingContext2D
-
-const mouse = {
-    x: 0,
-    y: 0,
-    click: false
-} 
-
-document.addEventListener('mousemove', (event) => {
-    mouse.x = event.clientX
-    mouse.y = event.clientY
-})
-
-document.addEventListener('mousedown', () => {
-    mouse.click = true
-})
-
-document.addEventListener('mouseup', () => {
-    mouse.click = false
-})
-
-const keys = new Set<string>()
-document.addEventListener('keydown', (event) => {
-    keys.add(event.key)
-})
-
-document.addEventListener('keyup', (event) => {
-    keys.delete(event.key)
-})
 
 const size = 50
 let grid: number[][] = [ ]
@@ -52,29 +17,6 @@ for (let y = 0; y < canvas.height/size; y++) {
 
 var pause = true
 
-function deepcopy(original: number[][]): number[][] {
-    const copy: number[][] = []
-    for (const row of original) {
-        copy.push([])
-        for (const cell of row) 
-            copy[copy.length - 1].push(cell)
-    }
-    return copy
-}
-
-class Timer {
-    duration: number
-    count: number
-
-    constructor(duration: number) {
-        this.duration = duration
-        this.count = 0
-    }
-    restart() {
-        this.count = 0
-    }
-}
-
 const timer = new Timer(1000)
 
 let previous = Date.now()
@@ -84,9 +26,8 @@ function frameloop() {
     const delta = current - previous
     previous = current
     timer.count += delta
-    console.log(timer.count)
 
-    if (keys.has('Enter'))
+    if (keyboard.has('Enter'))
         pause = false
     if (mouse.click == true)
         pause = true
@@ -147,6 +88,7 @@ function frameloop() {
                 context.strokeRect(size * x, size * y, size, size)
         })
     })
+
     current = Date.now()
     requestAnimationFrame(frameloop)
 }
