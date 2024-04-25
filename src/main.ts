@@ -60,6 +60,47 @@ function control(grid: number[][]) {
     }
 }
 
+function nearby(y: number, x: number, grid: number[][]) {
+    return {
+        topleft: grid[y - 1]?.[x - 1] ?? 0,
+        top: grid[y - 1]?.[x] ?? 0,
+        topright: grid[y-1]?.[x + 1] ?? 0,
+        left: grid[y]?.[x - 1] ?? 0,
+        right: grid[y]?.[x + 1] ?? 0,
+        bottomleft: grid[y + 1]?.[x - 1] ?? 0,
+        bottommid: grid[y + 1]?.[x] ?? 0,
+        bottomright: grid[y + 1]?.[x + 1] ?? 0,
+    }
+}
+
+function mutate(grid: number[][], y: number, x: number, sum: number) {
+    const cell = grid[y][x]
+    if (cell == 1 && sum < 2)
+        grid[y][x] = 0
+    else if (cell == 1 && (sum == 2 || sum == 3))
+        grid[y][x] = 1
+    else if (sum > 3)
+        grid[y][x] = 0
+    else if (cell == 0 && sum == 3)
+        grid[y][x] = 1
+}
+
+function iterate(grid: number[][]): number[][]{
+    let grid0 = deepcopy(grid);
+    grid.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            const neighbors = nearby(y, x, grid)
+
+            let sum = 0
+            for (const neighbor of Object.values(neighbors))
+                sum += neighbor
+
+            mutate(grid0, y, x, sum)
+        })
+    })
+    return grid0
+}
+
 function frameloop() {
     const delta = tick()
     timer.count += delta
@@ -70,37 +111,8 @@ function frameloop() {
 
     if (timer.count >= timer.duration) {
         timer.restart()
-        if (pause == false) { 
-            const grid0 = deepcopy(grid);
-            grid.forEach((row, y) => {
-                row.forEach((cell, x) => {
-                    const neighbors = {
-                        topleft: grid[y - 1]?.[x - 1] ?? 0,
-                        top: grid[y - 1]?.[x] ?? 0,
-                        topright: grid[y-1]?.[x + 1] ?? 0,
-                        left: grid[y]?.[x - 1] ?? 0,
-                        right: grid[y]?.[x + 1] ?? 0,
-                        bottomleft: grid[y + 1]?.[x - 1] ?? 0,
-                        bottommid: grid[y + 1]?.[x] ?? 0,
-                        bottomright: grid[y + 1]?.[x + 1] ?? 0,
-                    }
-                    let sum = 0
-
-                    for (const neighbor of Object.values(neighbors))
-                        sum += neighbor
-
-                    if (cell == 1 && sum < 2)
-                        grid0[y][x] = 0
-                    else if (cell == 1 && (sum == 2 || sum == 3))
-                        grid0[y][x] = 1
-                    else if (sum > 3)
-                        grid0[y][x] = 0
-                    else if (cell == 0 && sum == 3)
-                        grid0[y][x] = 1
-                })
-            })
-            grid = grid0
-        }
+        if (pause == false)
+            grid = iterate(grid)
     }
 
     render(grid, "rgb(242, 241, 241)", "black")
