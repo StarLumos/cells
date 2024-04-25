@@ -3,6 +3,7 @@ import { keyboard } from "./keyboard"
 import { mouse } from "./mouse"
 import { resize, canvas, context } from "./graphics"
 import { deepcopy } from "./utilities"
+import { timer } from "./controls"
 
 resize(canvas)
 
@@ -14,17 +15,6 @@ for (let y = 0; y < canvas.height/size; y++) {
     for (let x = 0; x < canvas.width/size; x++)
         grid[y][x] = 0
 }
-
-const html = {
-    time: (document.getElementById('time-slider') as HTMLInputElement),
-}
-
-const timer = new Timer(parseInt(html.time.value))
-
-html.time.addEventListener('input', () => {
-    timer.duration = parseInt(html.time.value)
-    timer.restart()
-})
 
 var pause = true
 
