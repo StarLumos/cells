@@ -16,6 +16,22 @@ for (let y = 0; y < canvas.height/size; y++) {
         grid[y][x] = 0
 }
 
+
+type color = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'white' | 'black' | `rgb(${number},${number},${number})`
+
+function render(grid: number[][], dead: color, alive: color) {
+    context.fillStyle = alive
+    context.strokeStyle = dead
+    grid.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if (cell == 1)
+                context.fillRect(size * x, size * y, size, size)
+            else if (cell == 0)
+                context.strokeRect(size * x, size * y, size, size)
+        })
+    })
+}
+
 var pause = true
 
 let previous = Date.now()
@@ -27,6 +43,7 @@ function frameloop() {
     timer.count += delta
     console.log(timer.count)
 
+    // event listener
     if (keyboard.has('Enter'))
         pause = false
     if (mouse.click == true)
@@ -79,15 +96,8 @@ function frameloop() {
             grid = grid0
         }
     }
-    
-    grid.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            if (cell == 1)
-                context.fillRect(size * x, size * y, size, size)
-            else if (cell == 0)
-                context.strokeRect(size * x, size * y, size, size)
-        })
-    })
+
+    render(grid, "rgb(43,255,0)", "cyan")
 
     current = Date.now()
     requestAnimationFrame(frameloop)
