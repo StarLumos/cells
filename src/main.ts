@@ -100,7 +100,7 @@ function frameloop() {
         }
     }
 
-    render(grid, "rgb(43,255,0)", "cyan")
+    render(grid, "rgb(242, 241, 241)", "black")
 
     requestAnimationFrame(frameloop)
 }
