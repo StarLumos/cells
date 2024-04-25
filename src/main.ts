@@ -1,4 +1,3 @@
-import { Timer } from "./Timer"
 import { keyboard } from "./keyboard"
 import { mouse } from "./mouse"
 import { resize, canvas, context } from "./graphics"
@@ -15,7 +14,6 @@ for (let y = 0; y < canvas.height/size; y++) {
     for (let x = 0; x < canvas.width/size; x++)
         grid[y][x] = 0
 }
-
 
 type color = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'white' | 'black' | `rgb(${number},${number},${number})`
 
@@ -47,7 +45,6 @@ function tick(): number {
 function frameloop() {
     const delta = tick()
     timer.count += delta
-    console.log(timer.count)
 
     // event listener
     if (keyboard.has('Enter'))
