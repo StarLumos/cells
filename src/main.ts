@@ -42,21 +42,15 @@ function tick(): number {
     return delta
 }
 
-function frameloop() {
-    const delta = tick()
-    timer.count += delta
-
-    // event listener
+function control(grid: number[][]) {
     if (keyboard.has('Enter'))
         pause = false
     if (mouse.click == true)
         pause = true
 
-    context.clearRect(0, 0, canvas.width, canvas.height)
-
     const gridx = Math.floor(mouse.x/size)
     const gridy = Math.floor(mouse.y/size)
-
+    
     if (mouse.click == true) {
         if (grid[gridy][gridx] == 0)
             grid[gridy][gridx] = 1
@@ -64,6 +58,15 @@ function frameloop() {
             grid[gridy][gridx] = 0
         mouse.click = false
     }
+}
+
+function frameloop() {
+    const delta = tick()
+    timer.count += delta
+
+    control(grid)
+
+    context.clearRect(0, 0, canvas.width, canvas.height)
 
     if (timer.count >= timer.duration) {
         timer.restart()
