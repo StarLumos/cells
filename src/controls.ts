@@ -1,5 +1,4 @@
 import { Timer } from "./Timer"
-import { keyboard } from "./keyboard"
 
 const html = {
     time: (document.getElementById('time-slider') as HTMLInputElement),
