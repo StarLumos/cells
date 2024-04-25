@@ -37,9 +37,15 @@ var pause = true
 let previous = Date.now()
 let current = Date.now()
 
-function frameloop() {
+function tick(): number {
+    current = Date.now()
     const delta = current - previous
     previous = current
+    return delta
+}
+
+function frameloop() {
+    const delta = tick()
     timer.count += delta
     console.log(timer.count)
 
@@ -99,7 +105,6 @@ function frameloop() {
 
     render(grid, "rgb(43,255,0)", "cyan")
 
-    current = Date.now()
     requestAnimationFrame(frameloop)
 }
 
