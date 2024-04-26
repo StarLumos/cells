@@ -85,7 +85,7 @@ function mutate(grid: number[][], y: number, x: number, sum: number) {
         grid[y][x] = 1
 }
 
-function iterate(grid: number[][]): number[][]{
+function iterate(grid: number[][]): number[][] {
     let grid0 = deepcopy(grid);
     grid.forEach((row, y) => {
         row.forEach((cell, x) => {
