@@ -1,36 +1,7 @@
-import { keyboard } from "./keyboard"
-import { mouse } from "./mouse"
-import { resize, canvas, context } from "./graphics"
-import { deepcopy } from "./utilities"
-import { timer } from "./controls"
-
-resize(canvas)
-
-const size = 50
-let grid: number[][] = [ ]
-
-for (let y = 0; y < canvas.height/size; y++) {
-    grid[y] = []
-    for (let x = 0; x < canvas.width/size; x++)
-        grid[y][x] = 0
-}
-
-type color = 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'cyan' | 'white' | 'black' | `rgb(${number},${number},${number})`
-
-function render(grid: number[][], dead: color, alive: color) {
-    context.fillStyle = alive
-    context.strokeStyle = dead
-    grid.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            if (cell == 1)
-                context.fillRect(size * x, size * y, size, size)
-            else if (cell == 0)
-                context.strokeRect(size * x, size * y, size, size)
-        })
-    })
-}
-
-var pause = true
+import { selection, canvas, context, initializeHTML } from "./graphics"
+import { Simulation } from "./simulations/Simulation"
+import { Conway } from "./simulations/Conway"
+import { Wolfram } from "./simulations/Wolfram"
 
 let previous = Date.now()
 let current = Date.now()
@@ -42,80 +13,42 @@ function tick(): number {
     return delta
 }
 
-function control(grid: number[][]) {
-    if (keyboard.has('Enter'))
-        pause = false
-    if (mouse.click == true)
-        pause = true
+let simulation: Simulation
 
-    const gridx = Math.floor(mouse.x/size)
-    const gridy = Math.floor(mouse.y/size)
-    
-    if (mouse.click == true) {
-        if (grid[gridy][gridx] == 0)
-            grid[gridy][gridx] = 1
-        else
-            grid[gridy][gridx] = 0
-        mouse.click = false
-    }
+const simulations = {
+    conway: new Conway(50, canvas.width, canvas.height, 3),
+    wolfram: new Wolfram(50, canvas.width, canvas.height, 3)
 }
 
-function nearby(y: number, x: number, grid: number[][]) {
-    return {
-        topleft: grid[y - 1]?.[x - 1] ?? 0,
-        top: grid[y - 1]?.[x] ?? 0,
-        topright: grid[y-1]?.[x + 1] ?? 0,
-        left: grid[y]?.[x - 1] ?? 0,
-        right: grid[y]?.[x + 1] ?? 0,
-        bottomleft: grid[y + 1]?.[x - 1] ?? 0,
-        bottommid: grid[y + 1]?.[x] ?? 0,
-        bottomright: grid[y + 1]?.[x + 1] ?? 0,
-    }
+function selected_simulation() {
+    selection?.removeEventListener('change', selected_simulation)
+    if (selection.value == 'conway')
+        simulation = simulations.conway
+    else
+        simulation = simulations.wolfram
+    initializeHTML(selection.value as 'conway' | 'wolfram')
+    simulation.injectHTML()
+    simulation.hookHTML()
+    selection?.addEventListener('change', selected_simulation)
 }
 
-function mutate(grid: number[][], y: number, x: number, sum: number) {
-    const cell = grid[y][x]
-    if (cell == 1 && sum < 2)
-        grid[y][x] = 0
-    else if (cell == 1 && (sum == 2 || sum == 3))
-        grid[y][x] = 1
-    else if (sum > 3)
-        grid[y][x] = 0
-    else if (cell == 0 && sum == 3)
-        grid[y][x] = 1
-}
-
-function iterate(grid: number[][]): number[][] {
-    let grid0 = deepcopy(grid);
-    grid.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            const neighbors = nearby(y, x, grid)
-
-            let sum = 0
-            for (const neighbor of Object.values(neighbors))
-                sum += neighbor
-
-            mutate(grid0, y, x, sum)
-        })
-    })
-    return grid0
-}
+selected_simulation()
 
 function frameloop() {
     const delta = tick()
-    timer.count += delta
+    simulation.timer.count += delta
 
-    control(grid)
+    simulation.control()
 
     context.clearRect(0, 0, canvas.width, canvas.height)
 
-    if (timer.count >= timer.duration) {
-        timer.restart()
-        if (pause == false)
-            grid = iterate(grid)
+    if (simulation.timer.count >= simulation.timer.duration) {
+        simulation.timer.restart()
+        if (simulation.pause == false)
+            simulation.update()
     }
 
-    render(grid, "rgb(242, 241, 241)", "black")
+    simulation.render(context, "rgb(242, 241, 241)", "black")
 
     requestAnimationFrame(frameloop)
 }
